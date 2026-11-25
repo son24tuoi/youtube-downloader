@@ -1,0 +1,14 @@
+build/
+dist/
+__pycache__/
+*.pyc
+*.spec
+.venv/
+venv/
+*.mp4
+*.o
+*.mp3
+*.m4a
+*.opus
+*.wav
+*.webm

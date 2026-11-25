@@ -1,0 +1,40 @@
+name: Build portable
+
+on:
+  push:
+    tags: ["v*"]          # push tag v1.0.0 -> tự tạo Release kèm file zip
+  workflow_dispatch:       # hoặc bấm "Run workflow" trong tab Actions
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cài MinGW (build launcher .exe)
+        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 zip
+
+      - name: Kiểm tra cú pháp
+        run: python -m py_compile src/app.py
+
+      - name: Build bản portable
+        run: ./scripts/build_portable.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YouTubeDownloader_Portable
+          path: dist/YouTubeDownloader_Portable.zip
+
+      - name: Tạo Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/YouTubeDownloader_Portable.zip
+          generate_release_notes: true
